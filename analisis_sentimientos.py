@@ -12,10 +12,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Se agregó CSS específico para el título de la barra lateral
 st.markdown("""
     <style>
     .main-title { font-size: 2.2rem; font-weight: 700; color: #1E88E5; margin-bottom: 0px; }
     .sub-title { color: #555555; font-size: 1rem; margin-bottom: 20px; }
+    .sidebar-title { font-size: 1.8rem; font-weight: 800; color: #FF4B4B; margin-top: -10px; line-height: 1.1;}
+    .sidebar-subtitle { font-size: 1rem; font-weight: 600; color: #888888; margin-bottom: 15px;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -41,7 +44,7 @@ def limpiar_texto_gemini(texto: str, api_key: str) -> str:
         return texto # Falla de forma segura si no hay clave
     try:
         genai.configure(api_key=api_key)
-        modelo = genai.GenerativeModel('gemini-1.5-flash')
+        modelo = genai.GenerativeModel('gemini-3.8-flash')
         prompt = f"""
         Actúa como un corrector ortográfico. Toma el siguiente texto, tradúcelo al español si está en otro idioma, 
         y corrige cualquier error de ortografía o gramática. Devuelve ÚNICAMENTE el texto limpio, en minúsculas y sin puntuación extra:
@@ -50,6 +53,7 @@ def limpiar_texto_gemini(texto: str, api_key: str) -> str:
         respuesta = modelo.generate_content(prompt)
         return respuesta.text.strip().lower().replace(".", "").replace(",", "")
     except Exception as e:
+        st.error(f"Detalle del error de Gemini: {e}")
         return texto.lower().replace(".", "").replace(",", "")
 
 def evaluar_clausula(texto_clausula: str) -> float:
@@ -128,6 +132,10 @@ if "history" not in st.session_state:
 
 # ── Barra Lateral (Sidebar) ────────────────────────────────
 with st.sidebar:
+    # Se agregó el Título de la Aplicación en la barra lateral
+    st.markdown('<div class="sidebar-title">Análisis de Sentimientos</div>', unsafe_allow_html=True)
+    st.divider()
+    
     st.header("⚙️ Configuración")
     api_key_input = st.text_input("Clave API de Gemini:", type="password", help="Obtén tu clave gratuita en Google AI Studio.")
     
